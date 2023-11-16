@@ -1,0 +1,36 @@
+cd root
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+apt-get update
+apt-get install wget unzip php7.3 php7.3-fpm nginx -y
+wget -O file.zip "https://drive.google.com/uc?export=download&id=1ViSkRq7SmwZgdK64eRbr5Fm1EGCTPrU1"
+unzip file.zip
+mv modul-3 /var/www/granz.channel.a14
+rm file.zip
+echo 'server {
+	listen 80;
+
+	root /var/www/granz.channel.a14;
+
+	index index.php index.html index.htm;
+	server_name granz.channel.a14.com;
+
+	location / {
+			try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	# pass PHP scripts to FastCGI server
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+	error_log /var/log/nginx/jarkom_error.log;
+	access_log /var/log/nginx/jarkom_access.log;
+}' > /etc/nginx/sites-available/granz.channel.a14
+rm -rf /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/granz.channel.a14 /etc/nginx/sites-enabled
+service nginx start
+service php7.3-fpm start
