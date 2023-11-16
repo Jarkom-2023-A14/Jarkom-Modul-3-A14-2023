@@ -1,0 +1,3 @@
+cd root
+apt-get update
+apt-get install lynx curl dnsutils apache2-utils -y
