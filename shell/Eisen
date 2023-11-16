@@ -1,0 +1,63 @@
+cd root
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+apt-get update
+apt-get install nginx apache2-utils -y
+rm -rf /etc/nginx/rahasiakita
+mkdir /etc/nginx/rahasiakita
+htpasswd -c -b /etc/nginx/rahasiakita/.htpasswd netics ajka14
+echo 'upstream myweb  {
+	server 10.6.3.1 weight=1;
+	server 10.6.3.2 weight=4;
+	server 10.6.3.3 weight=8;
+}
+
+server {
+	listen 80;
+	server_name granz.channel.a14.com;
+
+	location / {
+	auth_basic "Restricted Area";
+	auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+	proxy_pass http://myweb;
+	}
+
+	location /its {
+	proxy_pass https://www.its.ac.id;
+	}
+
+	allow 10.6.3.69;
+	allow 10.6.3.70;
+	allow 10.6.4.167;
+	allow 10.6.4.168;
+	deny all;
+}' > /etc/nginx/sites-available/default
+ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled
+echo 'upstream laravelweb {
+	server 10.6.4.1;
+	server 10.6.4.2;
+	server 10.6.4.3;
+}
+
+server {
+	listen 80;
+	server_name riegel.canyon.a14.com;
+
+	location / {
+	proxy_pass http://laravelweb;
+	proxy_bind 10.6.2.1;
+	}
+location /fern/ {
+proxy_bind 10.6.2.1;
+proxy_pass http://10.6.4.1/;
+}
+location /flamme/ {
+proxy_bind 10.6.2.1;
+proxy_pass http://10.6.4.2/;
+}
+location /frieren/ {
+proxy_bind 10.6.2.1;
+proxy_pass http://10.6.4.3/;
+}
+}' > /etc/nginx/sites-available/riegel.canyon.a14
+ln -s /etc/nginx/sites-available/riegel.canyon.a14 /etc/nginx/sites-enabled
+service nginx restart
