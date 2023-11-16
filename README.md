@@ -142,7 +142,8 @@ auto eth0
 iface eth0 inet dhcp
 ```
 
-<hr></hr>
+<hr></hr>  
+
 ## Semua Client harus menggunakan konfigurasi dari DHCP Server
 <b>Aura</b>
 ```
@@ -173,4 +174,53 @@ Buat agar request DHCP dapat diforward dari client menuju DHCP server, dan sebal
 service isc-dhcp-relay start
 ```
 Mulai service DHCP relay
+
+<b>Himmel</b>
+```
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+```
+Digunakan untuk membuat Himmel bisa terkoneksi dengan internet
+
+```
+apt-get update
+apt-get install isc-dhcp-server -y
+```
+Install server DHCP
+
+```
+echo 'DHCPDv4_PID=/var/run/dhcpd.pid
+INTERFACESv4="eth0"' > /etc/default/isc-dhcp-server
+
+echo 'option domain-name "example.org";
+option domain-name-servers ns1.example.org, ns2.example.org;
+
+default-lease-time 600;
+max-lease-time 7200;
+
+ddns-update-style none;
+
+authoritative;
+
+subnet 10.6.1.0 netmask 255.255.255.0{
+}
+subnet 10.6.2.0 netmask 255.255.255.0{
+}
+subnet 10.6.3.0 netmask 255.255.255.0 {
+}
+subnet 10.6.4.0 netmask 255.255.255.0 {
+}
+' > /etc/dhcp/dhcpd.conf
+```
+Set up server DHCP untuk menangani DHCP request
 ## 2 Client yang melalui Switch3 mendapatkan range IP dari 10.6.3.16 - 10.6.3.32 dan 10.6.3.64 - 10.6.3.80
+<b>Himmel</b>
+```
+subnet 10.6.3.0 netmask 255.255.255.0 {
+    range 10.6.3.16 10.6.3.32;
+    range 10.6.3.64 10.6.3.80;
+    option routers 10.6.3.0;
+    option broadcast-address 10.6.3.255;
+    option domain-name-servers 10.6.1.2;
+}
+```
+Ubah bagian ```subnet 10.6.3.0 netmask 255.255.255.0 {}``` pada file <b>/etc/dhcp/dhcpd.conf</b> untuk mengatur cara DHCP server menangani request DHCP dari subnet 10.6.3. Disini mereka akan diberikan ip 10.6.3.16 - 10.6.3.32, atau 10.6.3.64 - 10.6.3.80. Router dari subnet tersebut adalah 10.6.3.0, kemudian IP dari server DNS yang digunakan adalah 10.6.1.2 
