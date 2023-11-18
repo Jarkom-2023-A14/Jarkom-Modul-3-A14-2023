@@ -728,7 +728,7 @@ curl -X POST riegel.canyon.a14.com/api/auth/register -H 'Content-Type: applicati
 ```
 Dan berikut adalah hasilnya
 
-![res_auth_register](images/Res_authregister.png)
+![res_auth_register](images/Res_authregister.png)  
 ![ab_auth_register](images/ab_authregister.png)
 ## 16 POST /auth/login
 Untuk menguji dapat menggunakan command berikut
@@ -737,7 +737,7 @@ curl -X POST riegel.canyon.a14.com/api/auth/login -H 'Content-Type: application/
 ```
 Dan berikut adalah hasilnya
 
-![res_authlogin](images/Res_authlogin.png)
+![res_authlogin](images/Res_authlogin.png)  
 ![ab_authlogin](images/ab_authlogin.png)
 ## 17 GET /me
 ![res_me](images/Res_me.png)
