@@ -328,7 +328,7 @@ service php7.3-fpm start
 ```
 Mulai service nginx dan php-fpm
 
-<b>Eisen</b>
+<b>Eisen</b>  
 ```
 upstream myweb  {
 	server 10.6.3.1;
@@ -361,8 +361,8 @@ Disini kami menggunakan algoritma Weighted Least Connection dengan perbandingan 
 	Linie = 4
 	Lugner = 1
 
-<b>Eisen</b>
-Dengan cara hanya menambahkan script berikut pada Load Balancer (Eisen) di folder `etc/nginx/sites-enabled/default` : 
+<b>Eisen</b>  
+Dengan cara hanya menambahkan script berikut pada Load Balancer (Eisen) di file <b>etc/nginx/sites-enabled/default</b> : 
 ```
 upstream myweb  {
         least_conn;
@@ -372,7 +372,7 @@ upstream myweb  {
 }
 ```
 
-Dan berikut adalah hasilnya dengan didapatkannya 2659.54 request/second
+Dan berikut adalah hasilnya dengan didapatkannya 2659.54 request/second  
 
 ![tes_eisen](image/../images/Test_Eisen.png)
 
@@ -413,7 +413,7 @@ Grafik perbandingan algoritma
 
 ![Grafik_Algoritma](images/Grafik%20Algoritma%20PHP.png)
 
-Hasil analisisnya adalah jika dilihat dari grafik Request per Second yang didapatkan, algoritma yang paling baik adalah Weighted Least Connection yang dapat menerima 2831.10 Request per Detik. Hal ini dikarenakan algoritma tersebut memperhatikan jumlah request yang sedang diterima oleh setiap worker dan nilai bobot setiap workernya.
+Hasil analisisnya adalah jika dilihat dari grafik Request per Second yang didapatkan, algoritma yang paling baik adalah Weighted Least Connection yang dapat menerima 2831.10 Request per Detik. Hal ini dikarenakan algoritma tersebut memperhatikan jumlah request yang sedang diterima oleh setiap worker dan nilai bobot setiap workernya.  
 
 <hr></hr> 
 
@@ -421,33 +421,33 @@ Hasil analisisnya adalah jika dilihat dari grafik Request per Second yang didapa
 
 1.) 3 Worker
 
-![3_Worker](images/3%20Worker.png)
+![3_Worker](images/3%20Worker.png)  
 
-Didapatkan 352.48 Request/Second
+Didapatkan 352.48 Request/Second  
 
-2.) 2 Worker
+2.) 2 Worker  
 
-![2_Worker](images/2%20Worker.png)
+![2_Worker](images/2%20Worker.png)  
 
-Didapatkan 355.21 Request/Second
+Didapatkan 355.21 Request/Second  
 
-3.) 1 Worker
+3.) 1 Worker  
 
-![1_Worker](images/1%20Worker.png)
+![1_Worker](images/1%20Worker.png)  
 
-Didapatkan 289.00 Request/Second
+Didapatkan 289.00 Request/Second  
 
-Grafik Perbandingan Worker
+Grafik Perbandingan Worker  
 
-![Grafik_Worker](images/Grafik%20Worker.png)
+![Grafik_Worker](images/Grafik%20Worker.png)  
 
-Hasil analisisnya adalah semakin banyak jumlah workernya, maka semakin kecil waktu yang diperlukan untuk memproses request, meski juga ada terdapat batas atas dari jumlah worker yang akan memberikan pengaruh. Hal ini disebabkan bahwa dengan worker yang lebih banyak maka pembagian jumlah request yang harus dikerjakan setiap worker akan menurun namun worker yang terlalu banyak tidak akan memberi efek yang terlalu berarti bagi performa load balancer
+Hasil analisisnya adalah semakin banyak jumlah workernya, maka semakin kecil waktu yang diperlukan untuk memproses request, meski juga ada terdapat batas atas dari jumlah worker yang akan memberikan pengaruh. Hal ini disebabkan bahwa dengan worker yang lebih banyak maka pembagian jumlah request yang harus dikerjakan setiap worker akan menurun namun worker yang terlalu banyak tidak akan memberi efek yang terlalu berarti bagi performa load balancer  
 
 <hr></hr>  
 
 ## 10 Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
 
-<b>Eisen</b>
+<b>Eisen</b>  
 Untuk menambahkan konfigurasi autentikasi dapat menggunakan command berikut
 ```
 apt-get install apache2-utils -y
@@ -468,7 +468,7 @@ location / {
 <hr></hr>  
 
 ## 11 Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id.
-<b>Eisen</b>
+<b>Eisen</b>  
 Tambahkan konfigurasi berikut dalam file <b>/etc/nginx/sites-available/default</b>
 ```
 location /its {
@@ -478,7 +478,7 @@ location /its {
 <hr></hr>
 
 ## 12 Selanjutnya LB ini hanya boleh diakses oleh client dengan IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168.
-<b>Eisen</b>
+<b>Eisen</b>  
 Tambahkan konfigurasi berikut agar yang dapat mengakses adalah IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168 dan memblokir segala request selain IP tersebut pada file <b>/etc/nginx/sites-available/default</b>
 ```
 allow 10.6.3.69;
@@ -492,7 +492,7 @@ deny all;
 
 ## 13 Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern
 
-<b>Denke</b>
+<b>Denke</b>  
 Konfigurasi Database pada Database Server (Denke) dengan kode berikut
 
 1.) Konfigurasi Untuk Install MySql
@@ -560,7 +560,7 @@ service mysql restart
 
 ## 14 Frieren, Flamme, dan Fern memiliki Riegel Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer 
 
-<b>Frieren, Flamme, Fern</b>
+<b>Frieren, Flamme, Fern</b>  
 Pada masing-masing Laravel Worker, konfigurasi webserver Laravel dengan konfigurasi berikut
 ```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
@@ -696,7 +696,7 @@ service php8.0-fpm start
 service nginx restart
 ```
 
-<b>Eisen</b>
+<b>Eisen</b>  
 Lalu pada Load Balancer (Eisen) Tambahkan code berikut pada file `/etc/nginx/sites-available/riegel.canyon.a14`
 ```
 echo 'upstream laravelweb {
@@ -723,7 +723,7 @@ service nginx restart
 ## Riegel Channel memiliki beberapa endpoint yang harus ditesting sebanyak 100 request dengan 10 request/second. Tambahkan response dan hasil testing pada grimoire
 ## 15 POST /auth/register
 Untuk menguji dapat menggunakan command berikut
-```bash
+```
 curl -X POST riegel.canyon.a14.com/api/auth/register -H 'Content-Type: application/json' -d '{"username": "username", "password": "password"}'
 ```
 Dan berikut adalah hasilnya
@@ -732,7 +732,7 @@ Dan berikut adalah hasilnya
 ![ab_auth_register](images/ab_authregister.png)
 ## 16 POST /auth/login
 Untuk menguji dapat menggunakan command berikut
-```bash
+```
 curl -X POST riegel.canyon.a14.com/api/auth/login -H 'Content-Type: application/json' -d '{"username": "username", "password": "password"}'
 ```
 Dan berikut adalah hasilnya
@@ -746,7 +746,7 @@ Dan berikut adalah hasilnya
 <hr></hr>  
 
 ## 18 Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern
-<b>Eisen</b>
+<b>Eisen</b>  
 Pada Load Balancer, tambahkan konfigurasi berikut pada file <b>/etc/nginx/sites-available/riegel.canyon.a14</b>
 ```
 server {
@@ -781,7 +781,7 @@ server {
 ### - pm.max_spare_servers
 ### sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire
 
-<b>Frieren, Flamme, Fern</b>
+<b>Frieren, Flamme, Fern</b>  
 Untuk menguji kita ubah isi file pada <b>/etc/php/8.0/fpm/pool.d/www.conf</b> menjadi seperti berikut 
 ```
 [www]
@@ -817,7 +817,7 @@ max_children = 50, 	start_servers = 20, 		min_spare_servers = 1, 		max_spare_ser
 
 ## 20 Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
 
-<b>Eisen</b>
+<b>Eisen</b>  
 Tambahkan konfigurasi di Load Balancer (Eisen) pada file berikut <b>/etc/nginx/sites-available/riegel.canyon.a14</b>
 ```
 upstream laravelweb {
