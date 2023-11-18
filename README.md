@@ -270,18 +270,25 @@ Tambahkan baris tersebut kedalam fungsi ```subnet 10.6.4.0 netmask 255.255.255.0
 <hr></hr>  
 
 ## 6 Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3
-
-Masukkan kode berikut pada masing-masing Worker PHP (Lugner, Line, dan Lagwine)
-```bash
-cd root
+<b>Lugner, Line, dan Lagwine</b>
+```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+```
+Digunakan untuk membuat worker bisa terkoneksi dengan internet
+```
 apt-get update
 apt-get install wget unzip php7.3 php7.3-fpm nginx -y
+```
+Install beberapa paket yang akan digunakan seperti wget, unzip, php, php-fpm dan nginx
+```
 wget -O file.zip "https://drive.google.com/uc?export=download&id=1ViSkRq7SmwZgdK64eRbr5Fm1EGCTPrU1"
 unzip file.zip
 mv modul-3 /var/www/granz.channel.a14
 rm file.zip
-echo 'server {
+```
+Download file yang diperlukan untuk website tersebut
+```
+server {
 	listen 80;
 
 	root /var/www/granz.channel.a14;
@@ -304,15 +311,31 @@ echo 'server {
 	}
 	error_log /var/log/nginx/jarkom_error.log;
 	access_log /var/log/nginx/jarkom_access.log;
-}' > /etc/nginx/sites-available/granz.channel.a14
+}
+```
+Buat file <b>/etc/nginx/sites-available/granz.channel.a14</b> dengan isi tersebut
+```
 rm -rf /etc/nginx/sites-enabled/default
+```
+Hapus file default pada <b>/etc/nginx/sites-enabled</b> untuk menghindari muncul halaman default nginx
+```
 ln -s /etc/nginx/sites-available/granz.channel.a14 /etc/nginx/sites-enabled
+```
+Buat symbolic link dari file <b>/etc/nginx/sites-available/granz.channel.a14</b> ke folder <b>/etc/nginx/sites-enabled</b>
+```
 service nginx start
 service php7.3-fpm start
 ```
+Mulai service nginx dan php-fpm
 
-Lalu pada Load Balancer tambahkan kode berikut pada file `/etc/nginx/sites-available/default`
-```bash
+<b>Eisen</b>
+```
+upstream myweb  {
+	server 10.6.3.1;
+	server 10.6.3.2;
+	server 10.6.3.3;
+}
+
 server {
 	listen 80;
 	server_name granz.channel.a14.com;
@@ -321,8 +344,8 @@ server {
 		proxy_pass http://myweb;
 	}
 }
-
 ```
+Ubah isi file <b>/etc/nginx/sites-available/default</b> menjadi tersebut. Digunakan file default sebab soal menyatakan bahwa DNS mengarah ke worker dengan ip 10.6.x.1, maka untuk penggunaan load balancer untuk website granz.channel.a14.com harus melalui IP load balancer, sehingga pengaturannya ada pada file default
 
 <hr></hr>  
 
@@ -334,12 +357,13 @@ server {
 
 Disini kami menggunakan algoritma Weighted Least Connection dengan perbandingan sebagai berikut :
 
-	Lawine = 4
-	Linie = 2
+	Lawine = 8
+	Linie = 4
 	Lugner = 1
 
+<b>Eisen</b>
 Dengan cara hanya menambahkan script berikut pada Load Balancer (Eisen) di folder `etc/nginx/sites-enabled/default` : 
-```bash
+```
 upstream myweb  {
         least_conn;
         server 10.6.3.1 weight=1;
@@ -389,7 +413,7 @@ Grafik perbandingan algoritma
 
 ![Grafik_Algoritma](images/Grafik%20Algoritma%20PHP.png)
 
-Hasil analisisnya adalah Dilihat dari grafik Request per Second yang didapatkan, algoritma yang paling baik adalah Least Connection yang dapat menerima 2831.10 Request per Detik. Hal ini dikarenakan algoritma tersebut memperhatikan request yang diterima setiap worker.
+Hasil analisisnya adalah jika dilihat dari grafik Request per Second yang didapatkan, algoritma yang paling baik adalah Weighted Least Connection yang dapat menerima 2831.10 Request per Detik. Hal ini dikarenakan algoritma tersebut memperhatikan jumlah request yang sedang diterima oleh setiap worker dan nilai bobot setiap workernya.
 
 <hr></hr> 
 
@@ -419,21 +443,21 @@ Grafik Perbandingan Worker
 
 Hasil analisisnya adalah semakin banyak jumlah workernya, maka semakin kecil waktu yang diperlukan untuk memproses request, meski juga ada terdapat batas atas dari jumlah worker yang akan memberikan pengaruh. Hal ini disebabkan bahwa dengan worker yang lebih banyak maka pembagian jumlah request yang harus dikerjakan setiap worker akan menurun namun worker yang terlalu banyak tidak akan memberi efek yang terlalu berarti bagi performa load balancer
 
-
 <hr></hr>  
 
 ## 10 Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
 
-Untuk menambahkan konfigurasi autentikasi dapat menambahkan command berikut
-
-```bash
-apt-get install apache2-utils
+<b>Eisen</b>
+Untuk menambahkan konfigurasi autentikasi dapat menggunakan command berikut
+```
+apt-get install apache2-utils -y
 mkdir /etc/nginx/rahasiakita
 htpasswd -c -b /etc/nginx/rahasiakita/.htpasswd netics ajka14
 ```
+Pertama lakukan instalasi paket yang diperlukan, kemudian buat folder /etc/nginx/rahasiakita. Lalu buatlah file htpasswd, disini flag -c menandakan untuk membuat file password, sedangkan flag -b menandakan bahwa username dan password diterima dari command line dan bukan melalui prompt user
 
-Lalu tambahkan konfigurasi berikut pada file ```/etc/nginx/sites-available/default```
-```bash
+Lalu ubah konfigurasi pada file <b>/etc/nginx/sites-available/default</b>, tepatnya pada fungsi ```location / {}```
+```
 location / {
 	auth_basic "Restricted Area";
 	auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
@@ -444,8 +468,9 @@ location / {
 <hr></hr>  
 
 ## 11 Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id.
-Tambahkan konfigurasi berikut dalam file ```/etc/nginx/sites-available/default```
-```bash
+<b>Eisen</b>
+Tambahkan konfigurasi berikut dalam file <b>/etc/nginx/sites-available/default</b>
+```
 location /its {
 	proxy_pass https://www.its.ac.id;
 }
@@ -453,9 +478,9 @@ location /its {
 <hr></hr>
 
 ## 12 Selanjutnya LB ini hanya boleh diakses oleh client dengan IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168.
-Tambahkan konfigurasi berikut agar yang dapat mengakses adalah IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168 dan memblokir segala request selain IP tersebut pada file ```/etc/nginx/sites-available/default```
-
-```bash
+<b>Eisen</b>
+Tambahkan konfigurasi berikut agar yang dapat mengakses adalah IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168 dan memblokir segala request selain IP tersebut pada file <b>/etc/nginx/sites-available/default</b>
+```
 allow 10.6.3.69;
 allow 10.6.3.70;
 allow 10.6.4.167;
@@ -467,22 +492,31 @@ deny all;
 
 ## 13 Semua data yang diperlukan, diatur pada Denken dan harus dapat diakses oleh Frieren, Flamme, dan Fern
 
+<b>Denke</b>
 Konfigurasi Database pada Database Server (Denke) dengan kode berikut
 
 1.) Konfigurasi Untuk Install MySql
-
-```bash
+```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+```
+Digunakan untuk membuat server bisa terkoneksi dengan internet
+```
 apt-get update
 apt-get install mariadb-server -y
 service mysql start
 ```
+Instalasi MariaDB kemudian memulai servicenya  
+
 2.) Konfigurasi MySql
-```bash
+```
 mysql -u root -e "CREATE DATABASE db_frieren"
 mysql -u root -e "CREATE USER 'a14'@'%' IDENTIFIED BY 'a14'"
 mysql -u root -e "GRANT ALL PRIVILEGES ON * . * TO a14@'%'"
 mysql -u root -e "FLUSH PRIVILEGES"
+```
+Buat database db_frieren, kemudian buat user <b>a14</b> dengan password <b>a14</b> yang dapat diakses dari manapun, kemudian berikan akses ke semua database lalu finalisasikan pemberian akses tersebut
+
+```
 echo '
 [client-server]
 [mysqld]
@@ -522,52 +556,41 @@ collation-server      = utf8mb4_general_ci
 service mysql restart
 ```
 
-Lalu install mariadb-client pada client
-```bash
-apt-get update
-apt-get install mariadb-client
-```
-
-Lalu jalankan MySql pada client
-```bash
-mysql
-```
-
 <hr></hr>  
 
 ## 14 Frieren, Flamme, dan Fern memiliki Riegel Channel sesuai dengan quest guide berikut. Jangan lupa melakukan instalasi PHP8.0 dan Composer 
 
+<b>Frieren, Flamme, Fern</b>
 Pada masing-masing Laravel Worker, konfigurasi webserver Laravel dengan konfigurasi berikut
-
-
-```bash
+```
 echo 'nameserver 192.168.122.1' > /etc/resolv.conf
 apt-get update
 apt-get install lsb-release ca-certificates apt-transport-https software-properties-common gnupg2 -y
 curl -sSLo /usr/share/keyrings/deb.sury.org-php.gpg https://packages.sury.org/php/apt.gpg
 sh -c 'echo "deb [signed-by=/usr/share/keyrings/deb.sury.org-php.gpg] https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
-
 apt-get update
 apt-get install php8.0-mbstring php8.0-xml php8.0-cli php8.0-common php8.0-intl php8.0-opcache php8.0-readline php8.0-mysql php8.0-fpm php8.0-curl unzip wget -y
 apt-get install nginx -y
-
 ```
+
 Install `Composer` dan `Git`
-```bash
+```
 wget https://getcomposer.org/download/2.0.13/composer.phar
 chmod +x composer.phar
 mv composer.phar /usr/bin/composer
 apt-get install git -y
 ```
+
 Clone Git Repository kedalam `var/www`
-```bash
+```
 rm -rf /var/www/laravel-praktikum-jarkom
 cd /var/www
 git clone https://github.com/martuafernando/laravel-praktikum-jarkom.git
 cd laravel-praktikum-jarkom
 ```
-Update composer dan buat file `.env` dengan isi konfigurasinya
-```bash
+
+Update composer dan buat file `.env` dengan isi konfigurasinya kemudian isi database, buat key dan secret code
+```
 composer update
 touch .env
 
@@ -633,10 +656,10 @@ VITE_PUSHER_APP_CLUSTER="${PUSHER_APP_CLUSTER}"
 php artisan migrate:fresh --seeder=AiringsTableSeeder
 php artisan key:generate
 php artisan jwt:secret # Tambahkan kode apabila ada error secret key
-
 ```
+
 Setup Laravel Webservernya
-```bash
+```
 cd /root
 echo 'server {
 
@@ -673,9 +696,9 @@ service php8.0-fpm start
 service nginx restart
 ```
 
+<b>Eisen</b>
 Lalu pada Load Balancer (Eisen) Tambahkan code berikut pada file `/etc/nginx/sites-available/riegel.canyon.a14`
-
-```bash
+```
 echo 'upstream laravelweb {
 	server 10.6.4.1;
 	server 10.6.4.2;
@@ -723,10 +746,9 @@ Dan berikut adalah hasilnya
 <hr></hr>  
 
 ## 18 Untuk memastikan ketiganya bekerja sama secara adil untuk mengatur Riegel Channel maka implementasikan Proxy Bind pada Eisen untuk mengaitkan IP dari Frieren, Flamme, dan Fern
-
-Pada Load Balancer, tambahkan konfigurasi berikut pada file `/etc/nginx/sites-available/riegel.canyon.a14`
-
-```bash
+<b>Eisen</b>
+Pada Load Balancer, tambahkan konfigurasi berikut pada file <b>/etc/nginx/sites-available/riegel.canyon.a14</b>
+```
 server {
 	listen 80;
 	server_name riegel.canyon.a14.com;
@@ -748,7 +770,6 @@ server {
 		proxy_pass http://10.6.4.3/;
 	}
 }
-
 ```
 
 <hr></hr>  
@@ -760,8 +781,9 @@ server {
 ### - pm.max_spare_servers
 ### sebanyak tiga percobaan dan lakukan testing sebanyak 100 request dengan 10 request/second kemudian berikan hasil analisisnya pada Grimoire
 
-Untuk menguji kita ubah isi file pada ```/etc/php/8.0/fpm/pool.d/www.conf``` menjadi seperti berikut 
-```bash
+<b>Frieren, Flamme, Fern</b>
+Untuk menguji kita ubah isi file pada <b>/etc/php/8.0/fpm/pool.d/www.conf</b> menjadi seperti berikut 
+```
 [www]
 user = www-data
 group = www-data
@@ -777,29 +799,38 @@ pm.max_spare_servers = 20
 Dan ganti atribut ***pm*** 
 Lalu jangan lupa restart dan jalankan Apache Benchmark
 
-```bash
+```
 service php8.0-fpm restart
 ab -n 100 -c 10 http://riegel.canyon.a14.com/
 ```
 
 Dan berikut adalah hasilnya
 
-![php_fpm1](images/php-fpm1.png)
-![php_fpm2](images/php-fpm2.png)
+max_children = 75, 	start_servers = 10, 		min_spare_servers = 5, 		max_spare_servers = 20  
+![php_fpm1](images/php-fpm1.png)  
+max_children = 50, 	start_servers = 10, 		min_spare_servers = 1, 		max_spare_servers = 20  
+![php_fpm2](images/php-fpm2.png)  
+max_children = 50, 	start_servers = 20, 		min_spare_servers = 1, 		max_spare_servers = 40  
 ![php_fpm3](images/php-fpm3.png)
 
 <hr></hr>  
 
 ## 20 Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
 
-Tambahkan konfigurasi di Load Balancer (Eisen) pada file berikut `/etc/nginx/sites-available/riegel.canyon.a14`
-```bash
+<b>Eisen</b>
+Tambahkan konfigurasi di Load Balancer (Eisen) pada file berikut <b>/etc/nginx/sites-available/riegel.canyon.a14</b>
+```
 upstream laravelweb {
 	least_conn;
 	server 10.6.4.1;
 	server 10.6.4.2;
 	server 10.6.4.3;
 }
+```
+
+Kemudian jalankan
+```
+ab -n 100 -c 10 riegel.canyon.a14.com
 ```
 
 Dan berikut adalah hasilnya
