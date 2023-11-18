@@ -270,37 +270,142 @@ Tambahkan baris tersebut kedalam fungsi ```subnet 10.6.4.0 netmask 255.255.255.0
 
 ## 6 Pada masing-masing worker PHP, lakukan konfigurasi virtual host untuk website berikut dengan menggunakan php 7.3
 
+Masukkan kode berikut pada masing-masing Worker PHP (Lugner, Line, dan Lagwine)
+```bash
+cd root
+echo 'nameserver 192.168.122.1' > /etc/resolv.conf
+apt-get update
+apt-get install wget unzip php7.3 php7.3-fpm nginx -y
+wget -O file.zip "https://drive.google.com/uc?export=download&id=1ViSkRq7SmwZgdK64eRbr5Fm1EGCTPrU1"
+unzip file.zip
+mv modul-3 /var/www/granz.channel.a14
+rm file.zip
+echo 'server {
+	listen 80;
+
+	root /var/www/granz.channel.a14;
+
+	index index.php index.html index.htm;
+	server_name granz.channel.a14.com;
+
+	location / {
+			try_files $uri $uri/ /index.php?$query_string;
+	}
+
+	# pass PHP scripts to FastCGI server
+	location ~ \.php$ {
+		include snippets/fastcgi-php.conf;
+		fastcgi_pass unix:/var/run/php/php7.3-fpm.sock;
+	}
+
+	location ~ /\.ht {
+		deny all;
+	}
+	error_log /var/log/nginx/jarkom_error.log;
+	access_log /var/log/nginx/jarkom_access.log;
+}' > /etc/nginx/sites-available/granz.channel.a14
+rm -rf /etc/nginx/sites-enabled/default
+ln -s /etc/nginx/sites-available/granz.channel.a14 /etc/nginx/sites-enabled
+service nginx start
+service php7.3-fpm start
+```
+
 <hr></hr>  
 
-## 7 Kepala suku dari Bredt Region memberikan resource server sebagai berikut:
-## Lawine, 4GB, 2vCPU, dan 80 GB SSD.
-## Linie, 2GB, 2vCPU, dan 50 GB SSD.
-## Lugner 1GB, 1vCPU, dan 25 GB SSD.
-## Aturlah agar Eisen dapat bekerja dengan maksimal, lalu lakukan testing dengan 1000 request dan 100 request/second
+## 7.) Kepala suku dari Bredt Region memberikan resource server sebagai berikut:
+###	Lawine, 4GB, 2vCPU, dan 80 GB SSD.
+###	Linie, 2GB, 2vCPU, dan 50 GB SSD.	
+###	Lugner 1GB, 1vCPU, dan 25 GB SSD.
+### Aturlah agar Eisen dapat bekerja dengan maksimal, lalu lakukan testing dengan 1000 request dan 100 request/second
+
+Disini kami menggunakan algoritma Weighted Least Connection dengan perbandingan sebagai berikut :
+
+	Lawine = 4
+	Linie = 2
+	Lugner = 1
+
+Dengan cara hanya menambahkan script berikut pada Load Balancer (Eisen) di folder `etc/nginx/sites-enabled/default` : 
+```bash
+upstream myweb  {
+        least_conn;
+        server 10.6.3.1 weight=1;
+        server 10.6.3.2 weight=4;
+        server 10.6.3.3 weight=8;
+}
+```
+
 
 <hr></hr>  
 
 ## 8 Karena diminta untuk menuliskan grimoire, buatlah analisis hasil testing dengan 200 request dan 10 request/second masing-masing algoritma Load Balancer dengan ketentuan sebagai berikut:
-## a) Nama Algoritma Load Balancer
-## b) Report hasil testing pada Apache Benchmark
-## c) Grafik request per second untuk masing masing algoritma. 
-## d) Analisis
+### a) Nama Algoritma Load Balancer
+### b) Report hasil testing pada Apache Benchmark
+### c) Grafik request per second untuk masing masing algoritma. 
+### d) Analisis
+
+1.) Algoritma Weighted Round Robin
+
+
+
+2.) Algoritma Weighted Least Connection
+
+3.) Algoritma IP Hash
+
+4.) Algoritma Generic Hash
 
 <hr></hr> 
 
 ## 9 Dengan menggunakan algoritma Round Robin, lakukan testing dengan menggunakan 3 worker, 2 worker, dan 1 worker sebanyak 100 request dengan 10 request/second, kemudian tambahkan grafiknya pada grimoire
 
+1.) 3 Worker
+
+2.) 2 Worker
+
+3.) 1 Worker
+
+
 <hr></hr>  
 
 ## 10 Selanjutnya coba tambahkan konfigurasi autentikasi di LB dengan dengan kombinasi username: “netics” dan password: “ajkyyy”, dengan yyy merupakan kode kelompok. Terakhir simpan file “htpasswd” nya di /etc/nginx/rahasisakita/
 
+Untuk menambahkan konfigurasi autentikasi dapat menambahkan command berikut
+
+```bash
+apt-get install apache2-utils
+mkdir /etc/nginx/rahasiakita
+htpasswd -c -b /etc/nginx/rahasiakita/.htpasswd netics ajka14
+```
+
+Lalu tambahkan konfigurasi berikut pada file ```/etc/nginx/sites-available/default```
+```bash
+location / {
+	auth_basic "Restricted Area";
+	auth_basic_user_file /etc/nginx/rahasiakita/.htpasswd;
+	proxy_pass http://myweb;
+}
+```
+
 <hr></hr>  
 
 ## 11 Lalu buat untuk setiap request yang mengandung /its akan di proxy passing menuju halaman https://www.its.ac.id.
-
+Tambahkan konfigurasi berikut dalam file ```/etc/nginx/sites-available/default```
+```bash
+location /its {
+	proxy_pass https://www.its.ac.id;
+}
+```
 <hr></hr>
 
 ## 12 Selanjutnya LB ini hanya boleh diakses oleh client dengan IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168.
+Tambahkan konfigurasi berikut agar yang dapat mengakses adalah IP 10.6.3.69, 10.6.3.70, 10.6.4.167, dan 10.6.4.168 dan memblokir segala request selain IP tersebut pada file ```/etc/nginx/sites-available/default```
+
+```bash
+allow 10.6.3.69;
+allow 10.6.3.70;
+allow 10.6.4.167;
+allow 10.6.4.168;
+deny all;
+```
 
 <hr></hr>  
 
