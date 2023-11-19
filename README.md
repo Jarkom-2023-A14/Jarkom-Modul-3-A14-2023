@@ -810,8 +810,9 @@ max_children = 75, 	start_servers = 10, 		min_spare_servers = 5, 		max_spare_ser
 max_children = 50, 	start_servers = 10, 		min_spare_servers = 1, 		max_spare_servers = 20  
 ![php_fpm2](images/php-fpm2.png)  
 max_children = 50, 	start_servers = 20, 		min_spare_servers = 1, 		max_spare_servers = 40  
-![php_fpm3](images/php-fpm3.png)
+![php_fpm3](images/php-fpm3.png)  
 
+Berdasarkan hasil tersebut, didapatkan bahwa dengan menurunkan jumlah <b>pm.max_children</b> dan <b>pm.min_spare_servers</b>, maka akan menurunkan jumlah waktu yang dibutuhkan untuk menangani request. Sedangkan, dengan meningkatkan jumlah <b>pm.start_servers</b> dan <b>pm.max_spare_servers</b>, maka justru akan meningkatkan jumlah waktu yang dibutuhkan untuk memproses request
 <hr></hr>  
 
 ## 20 Nampaknya hanya menggunakan PHP-FPM tidak cukup untuk meningkatkan performa dari worker maka implementasikan Least-Conn pada Eisen. Untuk testing kinerja dari worker tersebut dilakukan sebanyak 100 request dengan 10 request/second.
