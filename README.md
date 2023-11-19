@@ -739,8 +739,10 @@ Dan berikut adalah hasilnya
 ![res_authlogin](images/Res_authlogin.png)  
 ![ab_authlogin](images/ab_authlogin.png)
 ## 17 GET /me
-![res_me](images/Res_me.png)
-![ab_me](images/ab_me.png)
+![res_me](images/Res_me.png)  
+![ab_me](images/ab_me.png)  
+
+Keterangan: Apabila terdapat lebih dari 1 worker pada load balancer, maka token login yang didapat tidak bisa digunakan pada worker lain. Disarankan untuk mengubah load balancer agar hanya menggunakan 1 worker saja untuk pengujian ini demi menjaga konsistensi token login 
 
 <hr></hr>  
 
