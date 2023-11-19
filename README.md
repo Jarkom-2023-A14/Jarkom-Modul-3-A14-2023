@@ -5,7 +5,6 @@ Pertama, buat topologi tersebut kemudian set konfigurasi setiap nodenya sebagai 
 ```
 auto eth0
 iface eth0 inet dhcp
-Ip iptables -t nat -A POSTROUTING -o eth0 -j MASQUERADE -s 10.6.0.0/16
 
 auto eth1
 iface eth1 inet static
